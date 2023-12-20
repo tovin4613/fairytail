@@ -13,6 +13,30 @@ class BookList(models.Model):
     def __str__(self):
         return self.name
     
+class Post(models.Model):       #<-추가
+    User_id = models.CharField()      #<-추가
+    title = models.CharField()     #<-추가
+    content = models.CharField()       #<-추가
+    created_at = models.DateTimeField(auto_now_add=True)        #<-추가
+
+    def __str__(self):      #<-추가
+        return self.name        #<-추가
+
+class comment(models.Model):
+    Post_id = models.IntegerField()
+    User_id = models.CharField()
+    content = models.CharField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+
+    
+class Media(models.Model):
+    Post_id = models.IntegerField()
+    media_path = models.CharField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+
+    
 class BookDetail(models.Model):
     BookList = models.ForeignKey(BookList, on_delete=models.CASCADE)
     content = models.TextField()

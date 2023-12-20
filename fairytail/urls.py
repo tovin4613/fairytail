@@ -16,8 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from product.views import boardviewset
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register('Board', boardviewset, basename='Post')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('api.urls')),
+    path('board/',include(router.urls) ),
 ]
