@@ -37,4 +37,16 @@ class WordList(models.Model):
 
 class Users(AbstractUser):
     User_id = models.CharField(max_length=50)
-    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class UserAudioList(models.Model):
+    User = models.ForeignKey(Users, on_delete=models.CASCADE)
+    QuizList = models.OneToOneField(QuizList, on_delete=models.CASCADE)
+    audio_path = models.TextField()
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class AiAudioList(models.Model):
+    QuizList = models.OneToOneField(QuizList, on_delete=models.CASCADE)
+    audio_path = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
