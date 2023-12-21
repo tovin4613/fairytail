@@ -13,23 +13,23 @@ from django.http import JsonResponse
 #     queryset = BookList.objects.all()
 #     serializer_class = BookSerializer
 
-class BookListView(ListAPIView):
+class BookListView(ListCreateAPIView):
     queryset = BookList.objects.all()
     serializer_class = BookSerializer
 
-class BookDetailView(ListAPIView):
+class BookDetailView(ListCreateAPIView):
     queryset = BookDetail.objects.all()
     serializer_class = BookDetailSerializer
 
-class QuizListView(ListAPIView):
+class QuizListView(ListCreateAPIView):
     queryset = QuizList.objects.all()
     serializer_class = QuizListSerializer
 
-class WordListView(ListAPIView):
+class WordListView(ListCreateAPIView):
     queryset = WordList.objects.all()
     serializer_class = WordListSerializer
 
-class AiAudioListView(ListAPIView):
+class AiAudioListView(ListCreateAPIView):
     queryset = AiAudioList.objects.all()
     serializer_class = AiAudioListSerializer
 
