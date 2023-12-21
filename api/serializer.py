@@ -31,3 +31,16 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookList
         fields = ['id', 'book_name', 'img_path', 'author', 'genre', 'level', 'created_at', 'BookDetail', 'QuizList']
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'password', 'name', 'created_at')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        return User.objects.create_user(
+            email=validated_data['email'],
+            name=validated_data['name'],
+            password=validated_data['password']
+        )

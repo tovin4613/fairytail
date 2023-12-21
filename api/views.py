@@ -33,6 +33,11 @@ class AiAudioListView(ListCreateAPIView):
     queryset = AiAudioList.objects.all()
     serializer_class = AiAudioListSerializer
 
+class CreateUserView(CreateAPIView):
+    model = User
+    permission_classes = []
+    serializer_class = UserSerializer
+
 # class BookListRetrieveView(RetrieveAPIView):
 #     queryset = BookList.objects.select_related('BookList_id').all()
 #     serializer_class = BookSerializer
