@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    'rest_framework_simplejwt.token_blacklist',
     "api",
     "product",
     'corsheaders', # <- 추가
@@ -133,3 +134,18 @@ CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:3000'
 CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'product.Users'
+
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    # ...
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    # ... 기타 설정은 필요에 따라 추가
+}
