@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets
 from product.models import *
 from .serializer import *
-from rest_framework.generics import ListAPIView, RetrieveAPIView, ListCreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import *
 from django.views.generic.list import BaseListView
 from django.views.generic.detail import BaseDetailView
 from rest_framework.response import Response
