@@ -13,7 +13,7 @@ class Postview(ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class=PostSerializer
     
-class postRetrieveview(RetrieveAPIView):
+class postRetrieveview(CreateAPIView, RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class=PostDetailSerializer
     
