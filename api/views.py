@@ -7,6 +7,9 @@ from django.views.generic.list import BaseListView
 from django.views.generic.detail import BaseDetailView
 from rest_framework.response import Response
 from django.http import JsonResponse
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import *
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 # Create your views here.
 # class BookViewSet(viewsets.ModelViewSet):
@@ -16,26 +19,35 @@ from django.http import JsonResponse
 class BookListView(ListCreateAPIView):
     queryset = BookList.objects.all()
     serializer_class = BookSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class BookDetailView(ListCreateAPIView):
     queryset = BookDetail.objects.all()
     serializer_class = BookDetailSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class QuizListView(ListCreateAPIView):
     queryset = QuizList.objects.all()
     serializer_class = QuizListSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class WordListView(ListCreateAPIView):
     queryset = WordList.objects.all()
     serializer_class = WordListSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class AiAudioListView(ListCreateAPIView):
     queryset = AiAudioList.objects.all()
     serializer_class = AiAudioListSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-class CreateUserView(CreateAPIView):
+class CreateUserView(ListCreateAPIView):
     model = User
-    permission_classes = []
     serializer_class = UserSerializer
 
 # class BookListRetrieveView(RetrieveAPIView):

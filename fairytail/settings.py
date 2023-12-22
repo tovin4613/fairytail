@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     'rest_framework_simplejwt.token_blacklist',
+    'rest_framework.authtoken',
     "api",
     "product",
     'corsheaders', # <- 추가
@@ -61,7 +63,7 @@ ROOT_URLCONF = "fairytail.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'templates')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -139,13 +141,32 @@ from datetime import timedelta
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    # ...
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    # ... 기타 설정은 필요에 따라 추가
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=15),
+    # access_token 유효시간
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    # refresh_token 유효시간
+    'ROTATE_REFRESH_TOKENS': True,    
+    # True이면 refresh api에 토큰을 이력하면 refresh_token과
+    # access_token이 함께 재발급 된다
+    'BLACKLIST_AFTER_ROTATION': True,
+    # True이면 기존에 사용하던 refresh토큰은 사용 할 수 없도록, blacklist에 저장 
+    
+    'UPDATE_LAST_LOGIN': True,
+    
+    # 'ALGORITHM': ALGORITHM,
+    # 'SIGNING_KEY': SECRET_KEY,
+	# Token 만들 때, Algorithm과 Secret_key가 필요하기에 넣어 준다.
+    #'AUTH_HEADER_TYPES': ('Bearer',),
+    # 보통의 경우에 Bearer Token을 사용하기에 Token 앞에 수식어?로 들어올 단어 set
 }
