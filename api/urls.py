@@ -12,6 +12,8 @@ from django.contrib.auth.views import LoginView
 urlpatterns = [
     #path('', include(router.urls)),
     path('BookList/', BookListView.as_view()),
+    path('BookList2/', BookListView2.as_view()),
+    path('BookList2/<int:pk>', BookListDetailView2.as_view()),
     # path('BookList/<int:pk>/', BookListRetrieveView.as_view()),
     path('BookDetail/', BookDetailView.as_view()),
     path('QuizList/', QuizListView.as_view()),
