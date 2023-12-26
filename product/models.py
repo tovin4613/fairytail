@@ -21,7 +21,7 @@ class Post(models.Model):       #<-추가
         return self.name        #<-추가
 
 class comment(models.Model):
-    Post_id = models.IntegerField()
+    Post = models.ForeignKey(Post, related_name='comment', on_delete=models.CASCADE)
     User_id = models.CharField(max_length=20)
     content = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -29,7 +29,7 @@ class comment(models.Model):
 
     
 class Media(models.Model):
-    Post_id = models.IntegerField()
+    Post = models.ForeignKey(Post, related_name='Media', on_delete=models.CASCADE)
     media_path = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     

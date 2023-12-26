@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 from .views import *
+from product.views import *
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from django.contrib.auth.views import LoginView
 
@@ -26,4 +27,6 @@ urlpatterns = [
     # path('BookDetail/', BookDetailView.as_view()),
     # path('BookDetail/<int:BookList_id>/', BookDetailRetrieveView.as_view()),
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('posts/', Postview.as_view()),
+    path('posts/<int:pk>/', postRetrieveview.as_view())
 ]
