@@ -93,6 +93,11 @@ class CreateUserView(ListCreateAPIView):
     model = User
     serializer_class = UserSerializer
 
+class GetUser(RetrieveAPIView):
+    queryset = User.objects.all()
+    model = User
+    serializer_class = UserSerializer
+
 # class BookListRetrieveView(RetrieveAPIView):
 #     queryset = BookList.objects.select_related('BookList_id').all()
 #     serializer_class = BookSerializer
