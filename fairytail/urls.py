@@ -24,4 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('api.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    #아래는 'dasomi'가 추가
+    path('chatgpt/', chatGPT, name='chatgpt'),
+    path('transcribe/', 'transcribe_audio'),
 ]

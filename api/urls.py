@@ -28,5 +28,8 @@ urlpatterns = [
     # path('BookDetail/<int:BookList_id>/', BookDetailRetrieveView.as_view()),
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('posts/', Postview.as_view()),
-    path('posts/<int:pk>/', postRetrieveview.as_view())
+    path('posts/<int:pk>/', postRetrieveview.as_view()),
+    # 아래는 'dasomi'가 추가
+    path('chatgpt/', chatGPT),
+    path('transcribe/', transcribe_audio),
 ]
