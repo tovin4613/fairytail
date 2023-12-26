@@ -104,6 +104,7 @@ class AiAudioListView(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class CreateUserView(ListCreateAPIView):
+    queryset = User.objects.all()
     model = User
     serializer_class = UserSerializer
 
