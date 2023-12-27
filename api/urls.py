@@ -34,6 +34,6 @@ urlpatterns = [
     path('posts/<int:pk>/comment/<int:id>',commentuploadview.as_view()),
     path('posts/<int:pk>/', postRetrieveview.as_view()),
     # 아래는 'dasomi'가 추가
-    path('chatgpt/', chatGPT),
-    path('transcribe/', transcribe_audio),
+    # path('chatgpt/', chatGPT),
+    # path('transcribe/', transcribe_audio),
 ]
