@@ -168,51 +168,86 @@ class GetUser(RetrieveAPIView):
     model = User
     serializer_class = UserSerializer
 
-# class BookListRetrieveView(RetrieveAPIView):
-#     queryset = BookList.objects.select_related('BookList_id').all()
-#     serializer_class = BookSerializer
-
-#     def get_object(self):
-#         bookList_id = self.kwargs.get('BookList_id')
-#         bookDetail = get_object_or_404(BookDetail, pk=bookList_id)
-#         return bookDetail.page
-
-# class BookDetailView(BaseListView):
-#     model = BookDetail
-#     def get_queryset(self):
-#         #paramBook = self.request.GET.get('bookdetail')
-#         qs = BookDetail.objects.all()
-#         return qs
+class Postview(ListCreateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Post.objects.all()
+    serializer_class=PostSerializer
     
-#     def render_to_response(self, context, **response_kwargs):
-        
-#         qs = list(context['object_list'].values())
-#         print(qs)
-
-#         jsonData = {
-#             'BookDetail_list': qs,
-#         }
-#         return JsonResponse(data=jsonData, safe=True, status=200)
+class postRetrieveview(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def get_object(self, pk):
+        try:
+            return Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            raise Http404
     
+    # 조회
+    def get(self, request, pk, format=None):
+        book = self.get_object(pk)
+        serializer = PostSerializer(book)
+        return Response(serializer.data)
 
-# class BookDetailRetrieveView(RetrieveAPIView):
-#     #queryset = BookDetail.objects.all()
-#     serializer_class = BookDetailSerializer
-#     lookup_field = 'BookList_id'
-#     def get_queryset(self):
-#         BookList_id = self.kwargs['BookList_id']
-#         print(BookList_id)
-#         return list(BookDetail.objects.filter(BookList__id=BookList_id))
-    
+    # # 등록
+    # def post(self, request, pk, format=None):
+    #     book = self.get_object(pk)
+    #     serializer = BookSerializer(book, data=request.data) 
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data) 
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class BookDetailViewSet(viewsets.ModelViewSet):
-#     def list(self, request):
-#         queryset = BookDetail.objects.all()
-#         serializer = BookDetailSerializer(queryset, many=True)
-#         return Response(serializer.data)
+    # 수정
+    def put(self, request, pk, format=None):
+        book = self.get_object(pk)
+        serializer = PostSerializer(book, data=request.data) 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # 삭제
+    def delete(self, request, pk, format=None):
+        book = self.get_object(pk)
+        book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)      
     
-#     def retrieve(self, request, pk):
-#         queryset = BookDetail.objects.all()
-#         book = get_object_or_404(queryset, pk=pk)
-#         serializer = BookDetailSerializer(book)
-#         return Response(serializer.data)
+class commentuploadview(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def get_object(self, pk):
+        try:
+            return comment.objects.get(pk=pk)
+        except comment.DoesNotExist:
+            raise Http404
+    
+    # 조회
+    def get(self, request, pk,id, format=None):
+        book = self.get_object(id)
+        serializer = commentSerializer(book)
+        return Response(serializer.data)
+
+    # 등록
+    def post(self, request, pk, id, format=None):
+        book = self.get_object(pk)
+        serializer = commentSerializer(data=request.data) 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # 수정
+    def put(self, request, pk, id, format=None):
+        book = self.get_object(id)
+        serializer = commentSerializer(book, data=request.data) 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # 삭제
+    def delete(self, request, id, format=None):
+        book = self.get_object(id)
+        book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
