@@ -72,3 +72,13 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_user_name(self, obj):
         return obj.User.name
+    
+class LearningStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LearningStatus
+        fields = ['id', 'User', 'QuizList', 'is_right', 'created_at']
+        
+class ReadingStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReadingStatus
+        fields = ['id', 'User', 'BookList', 'created_at']
