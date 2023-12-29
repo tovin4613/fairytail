@@ -259,6 +259,34 @@ class commentuploadview(APIView):
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class LearningStatusview(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def get_object(self, pk):
+        return LearningStatus.objects.filter(User=pk)
+        
+    def get(self, request, pk, format=None):
+        learning_statuses = self.get_object(pk)
+        serializer = LearningStatusSerializer(learning_statuses, many=True)
+        wrong_list = [i for i in serializer.data if not i['is_right']]
+        wrongpercentage = (len(wrong_list) / len(serializer.data)) * 100
+        numdata = len(serializer.data)
+        return Response({'User' : pk, 'wrongpercentage' : wrongpercentage, 'numdata' : numdata})
+    
+class ReadingStatusview(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def get_object(self, pk):
+        return ReadingStatus.objects.filter(User=pk)
+        
+        
+    def get(self, request, pk, format=None):
+        book=self.get_object(pk)
+        serializer = ReadingStatusSerializer(book,many=True)
+        read_list = [i for i in serializer.data]
+        readbook = len(read_list)
+        return Response({'User' : pk, 'readbook' : read_list, 'readbooknum' : readbook})
+    
 class CommentCreateView(CreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]

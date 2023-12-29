@@ -37,4 +37,7 @@ urlpatterns = [
     # 아래는 'dasomi'가 추가
     # path('chatgpt/', chatGPT),
     # path('transcribe/', transcribe_audio),
+    
+    path('user/<int:pk>/learningstatus', LearningStatusview.as_view()),
+    path('user/<int:pk>/readingstatus', ReadingStatusview.as_view())
 ]
