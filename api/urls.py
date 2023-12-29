@@ -31,8 +31,9 @@ urlpatterns = [
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('posts/', Postview.as_view()),
     path('posts/<int:pk>/', postRetrieveview.as_view()),
-    path('posts/<int:pk>/comment/<int:id>',commentuploadview.as_view()),
+    path('posts/<int:pk>/comment/',commentuploadview.as_view()),
     path('posts/<int:pk>/', postRetrieveview.as_view()),
+    path('comment/', CommentCreateView.as_view()),
     # 아래는 'dasomi'가 추가
     # path('chatgpt/', chatGPT),
     # path('transcribe/', transcribe_audio),

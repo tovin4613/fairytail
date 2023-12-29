@@ -12,6 +12,7 @@ from rest_framework.authentication import *
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.filters import OrderingFilter
 # 아래부터 'dasomi'가 추가
 import requests
 #from openai import OpenAI
@@ -108,6 +109,9 @@ class BookListDetailView(APIView):
     def get(self, request, pk, format=None):
         book = self.get_object(pk)
         serializer = BookSerializer(book)
+        filter_backends = [OrderingFilter]
+        ordering_fields = ['created_at']
+        ordering = ['-created_at']
         return Response(serializer.data)
 
     # # 등록
@@ -173,6 +177,9 @@ class Postview(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Post.objects.all()
     serializer_class=PostSerializer
+    filter_backends = [OrderingFilter]
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
     
 class postRetrieveview(APIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
@@ -223,18 +230,18 @@ class commentuploadview(APIView):
             raise Http404
     
     # 조회
-    def get(self, request, pk,id, format=None):
-        book = self.get_object(id)
+    def get(self, request, pk, format=None):
+        book = self.get_object(pk=pk)
         serializer = commentSerializer(book)
         return Response(serializer.data)
 
     # 등록
-    def post(self, request, pk, id, format=None):
+    def post(self, request, pk, format=None):
         book = self.get_object(pk)
-        serializer = commentSerializer(data=request.data) 
+        serializer = commentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data) 
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 수정
@@ -251,3 +258,10 @@ class commentuploadview(APIView):
         book = self.get_object(id)
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class CommentCreateView(CreateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = comment.objects.all()
+    model = comment
+    serializer_class = commentSerializer

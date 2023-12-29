@@ -55,7 +55,10 @@ class commentSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", default=timezone.now)
     class Meta:
         model = comment
-        fields = ['id', 'Post', 'User_id', 'user_name', 'content', 'created_at']
+        fields = ['id', 'Post', 'User', 'user_name', 'content', 'created_at']
+        extra_kwargs = {
+            'user_name': {'read_only': True}
+        }
 
     def get_user_name(self, obj):
         return obj.User.name
@@ -66,6 +69,10 @@ class PostSerializer(serializers.ModelSerializer):
     comment=commentSerializer(many=True, read_only=True)
     created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", default=timezone.now)
     user_name = serializers.SerializerMethodField()
+    extra_kwargs = {
+            'user_name': {'read_only': True}
+    }
+    
     class Meta:
         model = Post    
         fields = ['id', 'User', 'user_name', 'title', 'content', 'created_at', 'Media', 'comment']
