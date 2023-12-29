@@ -278,4 +278,4 @@ class ReadingStatusview(APIView):
         serializer = ReadingStatusSerializer(book,many=True)
         read_list = [i for i in serializer.data]
         readbook = len(read_list)
-        return Response({'User' : pk, 'readbook' : read_list})
+        return Response({'User' : pk, 'readbook' : read_list, 'readbooknum' : readbook})
