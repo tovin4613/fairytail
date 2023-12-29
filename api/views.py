@@ -262,7 +262,7 @@ class LearningStatusview(APIView):
         learning_statuses = self.get_object(pk)
         serializer = LearningStatusSerializer(learning_statuses, many=True)
         wrong_list = [i for i in serializer.data if not i['is_right']]
-        wrongpercentage = len(wrong_list) / len(serializer.data)
+        wrongpercentage = (len(wrong_list) / len(serializer.data)) * 100
         numdata = len(serializer.data)
         return Response({'User' : pk, 'wrongpercentage' : wrongpercentage, 'numdata' : numdata})
     
