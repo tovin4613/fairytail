@@ -96,5 +96,5 @@ class UserAudioList(models.Model):
 
 class AiAudioList(models.Model):
     QuizList = models.OneToOneField(QuizList, related_name='AiAudioList', on_delete=models.CASCADE)
-    audio_path = models.TextField()
+    audio_path = models.FileField(upload_to='audio/')
     created_at = models.DateTimeField(auto_now_add=True)
