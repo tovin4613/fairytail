@@ -44,3 +44,38 @@ class UserSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             password=validated_data['password']
         )
+    
+class MediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = ['id', 'Post', 'media_path', 'created_at']
+        
+class commentSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", default=timezone.now)
+    class Meta:
+        model = comment
+        fields = ['id', 'Post', 'User', 'user_name', 'content', 'created_at']
+        extra_kwargs = {
+            'user_name': {'read_only': True}
+        }
+
+    def get_user_name(self, obj):
+        return obj.User.name
+
+class PostSerializer(serializers.ModelSerializer):
+    Media=MediaSerializer(many=True, read_only=True)
+    # User = UserSerializer(read_only=True)
+    comment=commentSerializer(many=True, read_only=True)
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", default=timezone.now)
+    user_name = serializers.SerializerMethodField()
+    extra_kwargs = {
+            'user_name': {'read_only': True}
+    }
+    
+    class Meta:
+        model = Post    
+        fields = ['id', 'User', 'user_name', 'title', 'content', 'created_at', 'Media', 'comment']
+
+    def get_user_name(self, obj):
+        return obj.User.name
