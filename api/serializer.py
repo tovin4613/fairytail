@@ -51,9 +51,14 @@ class MediaSerializer(serializers.ModelSerializer):
         fields = ['id', 'Post', 'media_path', 'created_at']
         
 class commentSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", default=timezone.now)
     class Meta:
         model = comment
-        fields = ['id', 'Post', 'User_id', 'content', 'created_at']
+        fields = ['id', 'Post', 'User_id', 'user_name', 'content', 'created_at']
+
+    def get_user_name(self, obj):
+        return obj.User.name
 
 class PostSerializer(serializers.ModelSerializer):
     Media=MediaSerializer(many=True, read_only=True)
