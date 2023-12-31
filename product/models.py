@@ -59,11 +59,9 @@ class comment(models.Model):
     content = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     
-
-    
 class Media(models.Model):
     Post = models.ForeignKey(Post, related_name='Media', on_delete=models.CASCADE)
-    media_path = models.CharField(max_length=500)
+    media_path = models.FileField(upload_to='post/')
     created_at = models.DateTimeField(auto_now_add=True)
     
 

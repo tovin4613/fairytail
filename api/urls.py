@@ -39,5 +39,6 @@ urlpatterns = [
     # path('transcribe/', transcribe_audio),
     
     path('user/<int:pk>/learningstatus', LearningStatusview.as_view()),
-    path('user/<int:pk>/readingstatus', ReadingStatusview.as_view())
+    path('user/<int:pk>/readingstatus', ReadingStatusview.as_view()),
+    path('posts/media/', PostMediaView.as_view())
 ]

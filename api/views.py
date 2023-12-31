@@ -13,11 +13,18 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
-# 아래부터 'dasomi'가 추가
 import requests
 #from openai import OpenAI
 #from google.cloud import speech
 import io
+
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import SearchFilter
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'  # 클라이언트가 페이지 당 아이템 수를 변경할 수 있도록 함
+    max_page_size = 100
 
 # 아래는 'dasomi' 가 추가
 #client = OpenAI(api_key="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")
@@ -177,9 +184,11 @@ class Postview(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Post.objects.all()
     serializer_class=PostSerializer
-    filter_backends = [OrderingFilter]
+    pagination_class = CustomPagination
+    filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+    search_fields = ['title', 'content']
     
 class postRetrieveview(APIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
@@ -293,3 +302,10 @@ class CommentCreateView(CreateAPIView):
     queryset = comment.objects.all()
     model = comment
     serializer_class = commentSerializer
+
+class PostMediaView(CreateAPIView, UpdateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Media.objects.all()
+    model = Media
+    serializer_class = MediaSerializer
