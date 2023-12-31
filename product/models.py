@@ -60,7 +60,6 @@ class comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
 class Media(models.Model):
-    Post = models.ForeignKey(Post, related_name='Media', on_delete=models.CASCADE)
     media_path = models.FileField(upload_to='post/')
     created_at = models.DateTimeField(auto_now_add=True)
     

@@ -17,6 +17,9 @@ import requests
 #from openai import OpenAI
 #from google.cloud import speech
 import io
+from PIL import Image
+from django.core.files.base import ContentFile
+from io import BytesIO
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
@@ -303,9 +306,28 @@ class CommentCreateView(CreateAPIView):
     model = comment
     serializer_class = commentSerializer
 
-class PostMediaView(CreateAPIView, UpdateAPIView):
+class PostMediaView(ListCreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Media.objects.all()
-    model = Media
     serializer_class = MediaSerializer
+
+    def resize_image(self, image, size=(300, 300)):
+        """ 이미지 크기를 조절하는 함수 """
+        img = Image.open(image)
+        img.convert('RGB')
+        img.thumbnail(size, Image.Resampling.LANCZOS)
+
+        temp_file = BytesIO()
+        img.save(temp_file, 'JPEG')
+        temp_file.seek(0)
+
+        return ContentFile(temp_file.read(), name=image.name)
+
+    def perform_create(self, serializer):
+        media_file = serializer.validated_data.get('media_path')
+        if media_file and hasattr(media_file, 'content_type') and media_file.content_type.startswith('image/'):
+            resized_image = self.resize_image(media_file)
+            serializer.save(media_path=resized_image)
+        else:
+            serializer.save()
