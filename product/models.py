@@ -46,6 +46,9 @@ class BookList(models.Model):
     genre = models.CharField(max_length=20)
     level = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.book_name
     
 class Post(models.Model):
     User = models.ForeignKey(User, related_name='Post', on_delete=models.CASCADE) #<-추가
@@ -59,11 +62,8 @@ class comment(models.Model):
     content = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     
-
-    
 class Media(models.Model):
-    Post = models.ForeignKey(Post, related_name='Media', on_delete=models.CASCADE)
-    media_path = models.CharField(max_length=500)
+    media_path = models.FileField(upload_to='post/')
     created_at = models.DateTimeField(auto_now_add=True)
     
 

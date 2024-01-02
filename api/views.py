@@ -13,11 +13,24 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
-# 아래부터 'dasomi'가 추가
 import requests
 #from openai import OpenAI
 #from google.cloud import speech
 import io
+from PIL import Image
+from django.core.files.base import ContentFile
+from io import BytesIO
+
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import SearchFilter
+
+class PostCustomPagination(PageNumberPagination):
+    page_size = 10
+    max_page_size = 100
+
+class BookDetailCustomPagination(PageNumberPagination):
+    page_size = 1
+    max_page_size = 100
 
 # 아래는 'dasomi' 가 추가
 #client = OpenAI(api_key="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")
@@ -95,52 +108,21 @@ class BookListView(ListCreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-class BookListDetailView(APIView):
-    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_object(self, pk):
-        try:
-            return BookList.objects.get(pk=pk)
-        except BookList.DoesNotExist:
-            raise Http404
-    
-    # 조회
-    def get(self, request, pk, format=None):
-        book = self.get_object(pk)
-        serializer = BookSerializer(book)
-        filter_backends = [OrderingFilter]
-        ordering_fields = ['created_at']
-        ordering = ['-created_at']
-        return Response(serializer.data)
-
-    # # 등록
-    # def post(self, request, pk, format=None):
-    #     book = self.get_object(pk)
-    #     serializer = BookSerializer(book, data=request.data) 
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data) 
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # 수정
-    def put(self, request, pk, format=None):
-        book = self.get_object(pk)
-        serializer = BookSerializer(book, data=request.data) 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # 삭제
-    def delete(self, request, pk, format=None):
-        book = self.get_object(pk)
-        book.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)      
-
-class BookDetailView(ListCreateAPIView):
+class BookListDetailView(CreateAPIView):
     queryset = BookDetail.objects.all()
     serializer_class = BookDetailSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]   
+
+class BookDetailView(ListCreateAPIView):
+
+    def get_queryset(self):
+        bookList = get_object_or_404(BookList, pk=self.kwargs['BookList_id'])
+        queryset = BookDetail.objects.filter(BookList=bookList.id)
+        return queryset
+    
+    serializer_class = BookDetailSerializer
+    pagination_class = BookDetailCustomPagination
     authentication_classes = [BasicAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -177,9 +159,11 @@ class Postview(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Post.objects.all()
     serializer_class=PostSerializer
-    filter_backends = [OrderingFilter]
+    pagination_class = PostCustomPagination
+    filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['created_at']
     ordering = ['-created_at']
+    search_fields = ['title', 'content']
     
 class postRetrieveview(APIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
@@ -293,3 +277,29 @@ class CommentCreateView(CreateAPIView):
     queryset = comment.objects.all()
     model = comment
     serializer_class = commentSerializer
+
+class PostMediaView(ListCreateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Media.objects.all()
+    serializer_class = MediaSerializer
+
+    def resize_image(self, image, size=(300, 300)):
+        """ 이미지 크기를 조절하는 함수 """
+        img = Image.open(image)
+        img.convert('RGB')
+        img.thumbnail(size, Image.Resampling.LANCZOS)
+
+        temp_file = BytesIO()
+        img.save(temp_file, 'JPEG')
+        temp_file.seek(0)
+
+        return ContentFile(temp_file.read(), name=image.name)
+
+    def perform_create(self, serializer):
+        media_file = serializer.validated_data.get('media_path')
+        if media_file and hasattr(media_file, 'content_type') and media_file.content_type.startswith('image/'):
+            resized_image = self.resize_image(media_file)
+            serializer.save(media_path=resized_image)
+        else:
+            serializer.save()

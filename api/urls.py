@@ -17,7 +17,7 @@ urlpatterns = [
     # path('BookList2/', BookListView2.as_view()),
     # path('BookList2/<int:pk>', BookListDetailView2.as_view()),
     # path('BookList/<int:pk>/', BookListRetrieveView.as_view()),
-    path('BookDetail/', BookDetailView.as_view()),
+    path('BookDetail/<int:BookList_id>/', BookDetailView.as_view()),
     path('QuizList/', QuizListView.as_view()),
     path('WordList/', WordListView.as_view()),
     path('AiAudioList/', AiAudioListView.as_view()),
@@ -39,5 +39,6 @@ urlpatterns = [
     # path('transcribe/', transcribe_audio),
     
     path('user/<int:pk>/learningstatus', LearningStatusview.as_view()),
-    path('user/<int:pk>/readingstatus', ReadingStatusview.as_view())
+    path('user/<int:pk>/readingstatus', ReadingStatusview.as_view()),
+    path('posts/media/', PostMediaView.as_view())
 ]

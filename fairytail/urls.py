@@ -20,12 +20,14 @@ from rest_framework import routers
 from django.conf import settings
 from django.conf.urls.static import static
 
+from stt.views import RecognizeSpeechView
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('api.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('recognize_speech/', RecognizeSpeechView.as_view()),
     #아래는 'dasomi'가 추가
     # path('chatgpt/', chatGPT, name='chatgpt'),
     # path('transcribe/', 'transcribe_audio'),

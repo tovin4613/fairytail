@@ -48,7 +48,7 @@ class UserSerializer(serializers.ModelSerializer):
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ['id', 'Post', 'media_path', 'created_at']
+        fields = ['id', 'media_path', 'created_at']
         
 class commentSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField()
