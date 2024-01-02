@@ -24,9 +24,12 @@ from io import BytesIO
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
 
-class CustomPagination(PageNumberPagination):
+class PostCustomPagination(PageNumberPagination):
     page_size = 10
-    page_size_query_param = 'page_size'  # 클라이언트가 페이지 당 아이템 수를 변경할 수 있도록 함
+    max_page_size = 100
+
+class BookDetailCustomPagination(PageNumberPagination):
+    page_size = 1
     max_page_size = 100
 
 # 아래는 'dasomi' 가 추가
@@ -105,52 +108,21 @@ class BookListView(ListCreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-class BookListDetailView(APIView):
-    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_object(self, pk):
-        try:
-            return BookList.objects.get(pk=pk)
-        except BookList.DoesNotExist:
-            raise Http404
-    
-    # 조회
-    def get(self, request, pk, format=None):
-        book = self.get_object(pk)
-        serializer = BookSerializer(book)
-        filter_backends = [OrderingFilter]
-        ordering_fields = ['created_at']
-        ordering = ['-created_at']
-        return Response(serializer.data)
-
-    # # 등록
-    # def post(self, request, pk, format=None):
-    #     book = self.get_object(pk)
-    #     serializer = BookSerializer(book, data=request.data) 
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data) 
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # 수정
-    def put(self, request, pk, format=None):
-        book = self.get_object(pk)
-        serializer = BookSerializer(book, data=request.data) 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data) 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # 삭제
-    def delete(self, request, pk, format=None):
-        book = self.get_object(pk)
-        book.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)      
-
-class BookDetailView(ListCreateAPIView):
+class BookListDetailView(CreateAPIView):
     queryset = BookDetail.objects.all()
     serializer_class = BookDetailSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]   
+
+class BookDetailView(ListCreateAPIView):
+
+    def get_queryset(self):
+        bookList = get_object_or_404(BookList, pk=self.kwargs['BookList_id'])
+        queryset = BookDetail.objects.filter(BookList=bookList.id)
+        return queryset
+    
+    serializer_class = BookDetailSerializer
+    pagination_class = BookDetailCustomPagination
     authentication_classes = [BasicAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -187,7 +159,7 @@ class Postview(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Post.objects.all()
     serializer_class=PostSerializer
-    pagination_class = CustomPagination
+    pagination_class = PostCustomPagination
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['created_at']
     ordering = ['-created_at']
