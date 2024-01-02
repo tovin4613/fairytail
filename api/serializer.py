@@ -86,6 +86,11 @@ class LearningStatusSerializer(serializers.ModelSerializer):
         fields = ['id', 'User', 'QuizList', 'is_right', 'created_at']
         
 class ReadingStatusSerializer(serializers.ModelSerializer):
+    # book_name = serializers.SerializerMethodField()
+    BookList=BookSerializer(many=False, read_only=True)
     class Meta:
         model = ReadingStatus
         fields = ['id', 'User', 'BookList', 'created_at']
+        # extra_kwargs = {
+        #     'book_name': {'read_only': True}
+        # }
