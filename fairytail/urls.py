@@ -17,14 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-
+from stt.views import RecognizeSpeechView
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/', include('api.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('recognize_speech/', RecognizeSpeechView.as_view()),
     #아래는 'dasomi'가 추가
     # path('chatgpt/', chatGPT, name='chatgpt'),
     # path('transcribe/', 'transcribe_audio'),
+
+    
 ]
+
