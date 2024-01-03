@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 #from google.cloud import speech
 import io
@@ -259,20 +259,18 @@ class LearningStatusview(APIView):
         wrong_list = [i for i in serializer.data if not i['is_right']]
         wrongpercentage = (len(wrong_list) / len(serializer.data)) * 100
         grouped_data={}
+        now=datetime.now() 
+        month=[]
+        month_data=[0,0,0,0,0,0,0]
         for i in serializer.data:
             date_str=i['created_at']
             created_at = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f')
-            month = created_at.month
-            if month in grouped_data:
-                grouped_data[month]+=1
-            else:
-                grouped_data[month]=1
-        groupdata=sorted(list(grouped_data.items()))
-        grouped_data=[]
-        month_data=[]
-        for x,y in groupdata:
-            grouped_data.append(str(x)+'월')
-            month_data.append(y)
+            thedate = created_at
+            if (now-timedelta(days=7))<thedate:
+                month.append(thedate)
+        for i in range(len(month)):
+            month_data[month[i].weekday()]+=1
+        grouped_data=['월','화','수','목','금','토','일']
         numdata=len(serializer.data)
         return Response({'User' : pk, 'wrongpercentage' : wrongpercentage, 'numdata' : numdata, 'grouped_data': grouped_data ,'month_data' : month_data})
     
