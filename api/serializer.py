@@ -103,3 +103,10 @@ class ReadingStatusCreateSerializer(serializers.ModelSerializer):
 
     def get_book_name(self, obj):
         return obj.BookList.book_name
+    
+    def validate(self, data):
+        User = data.get('User')
+        BookList = data.get('BookList')
+        if ReadingStatus.objects.filter(User=User, BookList=BookList).exists():
+            raise serializers.ValidationError("이미 해당 User와 BookList 조합이 존재합니다.")
+        return data

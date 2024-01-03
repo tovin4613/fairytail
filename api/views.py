@@ -15,8 +15,7 @@ from rest_framework import status
 from rest_framework.filters import OrderingFilter
 import requests
 from datetime import datetime
-#from openai import OpenAI
-from openai import OpenAI
+
 #from google.cloud import speech
 import io
 from PIL import Image
@@ -26,7 +25,7 @@ import json
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
 import random
-from .tts import TTS
+from .api import *
 
 class PostCustomPagination(PageNumberPagination):
     page_size = 10
@@ -44,10 +43,8 @@ class TextToSpeech(APIView):
         # bookid = request.data['bookid']
 
         # ChatGPT API 사용하는 부분
-        with open ("key.json", "r") as f:
-            key = json.load(f)
-
-        content = TTS(speech_key=key['speech_key'], service_region=key['service_region'])
+        
+        content = TTS(request.data['content'])
 
         return Response({"content": content})
 
@@ -62,34 +59,16 @@ class ChatGPT_Question(APIView):
         content_list = [book.content for book in bookDetail]
         random_content = random.choice(content_list)
 
-        # ChatGPT API 사용하는 부분
-        with open ("key.json", "r") as f:
-            key = json.load(f)
-        client = OpenAI(api_key=key['gpt_key'])
-
-        response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-            "role": "system",
-            "content": """너는 아이들을 사랑하는 가정교사야. 
-                          아이들의 눈높이에 맞춰서 대답을 해줘야해. 
-                          아이들이 맞출 수 있는 문제를 내줘야해.
-                          5, 6, 7세 아이가 맞출 수 있는 문제를 내줘.
-                          양식: 문제: question 정답: answer
-                       """
-            },
-            {
-            "role": "user",
-            "content": random_content + "이 줄거리에 대해서 문제를 하나 내줘"
-            },
-        ],
-        temperature=1,
-        max_tokens=256,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
+        response = ChatGPT("""
+                           너는 아이들을 사랑하는 가정교사야. 
+                           아이들의 눈높이에 맞춰서 대답을 해줘야해. 
+                           아이들이 맞출 수 있는 문제를 내줘야해. 
+                           5, 6, 7세 아이가 맞출 수 있는 문제를 내줘. 
+                           형식: 문제: question 정답: answer
+                           """, 
+                           "이 줄거리에 대해서 문제를 하나 내줘",
+                           random_content)
+        
         response_split = response.choices[0].message.content.split('정답: ')
         qustion = response_split[0].split('문제: ')[1]
         quiz_answer = response_split[1]
@@ -106,42 +85,19 @@ class ChatGPT_Feedback(APIView):
         quiz = request.data['quiz'] # 퀴즈 데이터
         user_answer = request.data['user_answer'] # 대답 데이터
         quiz_answer = request.data['quiz_answer'] # 퀴즈 정답 데이터
-        
-        # ChatGPT API 사용하는 부분
-        with open ("key.json", "r") as f:
-            key = json.load(f)
-        client = OpenAI(api_key=key['gpt_key'])
 
-        response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-            "role": "system",
-            "content": """너는 아이들을 사랑하는 가정교사야. 
-                          아이들의 눈높이에 맞춰서 대답을 해줘야해. 
-                          아이들에게 맞춘 피드백을 해줘야 해.
-                          5, 6, 7세 아이에게 필요한 피드백이 필요해.
-                          간단하게 피드백을 해줘야해.
-                       """
-            },
-            {
-            "role": "user",
-            "content": "줄거리 : " + content + 
-                       " 퀴즈 : " + quiz +
-                       " 퀴즈 정답 : " + quiz_answer + 
-                       " 대답 : " + user_answer +
-                       " 다음과 같이 대답을 했을 때 피드백을 해줘"
-            },
-        ],
-        temperature=1,
-        max_tokens=256,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-        )
-        # response_split = response.choices[0].message.content.split('정답: ')
-        # qustion = response_split[0].split('문제: ')[1]
-        # answer = response_split[1]
+        response = ChatGPT("""
+                           너는 아이들을 사랑하는 가정교사야. 
+                           아이들의 눈높이에 맞춰서 대답을 해줘야해. 
+                           아이들에게 맞춘 피드백을 해줘야 해.
+                           5, 6, 7세 아이에게 필요한 피드백이 필요해.
+                           간단하게 피드백을 해줘야해.
+                           """, 
+                           " 다음과 같이 대답을 했을 때 피드백을 해줘",
+                           "줄거리 : " + content + " 퀴즈 : " + quiz + 
+                           " 퀴즈 정답 : " + quiz_answer + 
+                           " 대답 : " + user_answer)
+
         feedback = response.choices[0].message.content
         return Response({"feedback": feedback, })
 
@@ -334,7 +290,7 @@ class ReadingStatusview(APIView):
         readbook = len(read_list)
         return Response({'User' : pk, 'readbook' : read_list, 'readbooknum' : readbook})
     
-class ReadingStatusCreateView(ListCreateAPIView):
+class ReadingStatusCreateView(CreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = ReadingStatus.objects.all()
