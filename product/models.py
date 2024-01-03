@@ -37,7 +37,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ['name']
 
     def __str__(self):
-        return self.email
+        return self.name
 
 class BookList(models.Model):
     book_name = models.CharField(max_length=100)

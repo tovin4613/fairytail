@@ -2,11 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import azure.cognitiveservices.speech as speechsdk
 import openai
+import json
 
 class RecognizeSpeechView(APIView):
     def post(self, request):
-        #speech_key, service_region =
-        speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+        with open ("key.json", "r") as f:
+            key = json.load(f)
+        speech_config = speechsdk.SpeechConfig(subscription=key["speech_key"], region=key["service_region"])
         speech_config.speech_recognition_language="ko-KR"
 
         audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)

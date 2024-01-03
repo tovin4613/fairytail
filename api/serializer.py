@@ -94,3 +94,12 @@ class ReadingStatusSerializer(serializers.ModelSerializer):
         # extra_kwargs = {
         #     'book_name': {'read_only': True}
         # }
+
+class ReadingStatusCreateSerializer(serializers.ModelSerializer):
+    book_name = serializers.SerializerMethodField()
+    class Meta:
+        model = ReadingStatus
+        fields = ['id', 'User', 'BookList', 'book_name', 'created_at']
+
+    def get_book_name(self, obj):
+        return obj.BookList.book_name

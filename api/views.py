@@ -14,15 +14,17 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 import requests
-#from openai import OpenAI
+from openai import OpenAI
 #from google.cloud import speech
 import io
 from PIL import Image
 from django.core.files.base import ContentFile
 from io import BytesIO
-
+import json
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
+import random
+from .tts import TTS
 
 class PostCustomPagination(PageNumberPagination):
     page_size = 10
@@ -32,75 +34,114 @@ class BookDetailCustomPagination(PageNumberPagination):
     page_size = 1
     max_page_size = 100
 
-# 아래는 'dasomi' 가 추가
-#client = OpenAI(api_key="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")
-# Create your views here.
-
-
-#chatGPT에게 채팅 요청 API
-# def chatGPT(request):
+class TextToSpeech(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
-#     completion = client.chat.completions.create(model="gpt-3.5-turbo",
-#     messages=[{"role": "user", "content": "오늘의 날씨는?"}])
-#     print(completion)
-#     result = completion.choices[0].message.content
+    def post(self, request):
+        # bookid = request.data['bookid']
+
+        # ChatGPT API 사용하는 부분
+        with open ("key.json", "r") as f:
+            key = json.load(f)
+
+        content = TTS(speech_key=key['speech_key'], service_region=key['service_region'])
+
+        return Response({"content": content})
+
+class ChatGPT_Question(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
-#     return HttpResponse(result)
+    def post(self, request):
+        # 랜덤 줄거리를 가지고 오는 부분
+        bookid = request.data['bookid']
+        bookDetail = BookDetail.objects.filter(BookList=bookid)
+        content_list = [book.content for book in bookDetail]
+        random_content = random.choice(content_list)
 
-# # Google STT API를 이용한 음성 파일 변환
-# def transcribe_audio(request):
-#     if request.method == 'POST':
-#         audio_file = request.FILES['audio']
-#         client = speech.SpeechClient()
+        # ChatGPT API 사용하는 부분
+        with open ("key.json", "r") as f:
+            key = json.load(f)
+        client = OpenAI(api_key=key['gpt_key'])
 
-#         audio_bytes = audio_file.read()
-#         audio = speech.RecognitionAudio(content=audio_bytes)
-#         config = speech.RecognitionConfig(
-#             encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-#             language_code='ko-KR')
+        response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+            "role": "system",
+            "content": """너는 아이들을 사랑하는 가정교사야. 
+                          아이들의 눈높이에 맞춰서 대답을 해줘야해. 
+                          아이들이 맞출 수 있는 문제를 내줘야해.
+                          5, 6, 7세 아이가 맞출 수 있는 문제를 내줘.
+                          양식: 문제: question 정답: answer
+                       """
+            },
+            {
+            "role": "user",
+            "content": random_content + "이 줄거리에 대해서 문제를 하나 내줘"
+            },
+        ],
+        temperature=1,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+        )
+        response_split = response.choices[0].message.content.split('정답: ')
+        qustion = response_split[0].split('문제: ')[1]
+        quiz_answer = response_split[1]
+        return Response({"question": qustion,
+                         "quiz_answer": quiz_answer,
+                         "content": random_content})
 
-#         response = client.recognize(config=config, audio=audio)
-#         transcripts = [result.alternatives[0].transcript for result in response.results]
-
-#         return JsonResponse({'transcripts': transcripts})
-#     else:
-#         return JsonResponse({'error': 'Invalid request'}, status=400)
+class ChatGPT_Feedback(APIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
-#     """
-#     1. set GOOGLE_APPLICATION_CREDENTIALS=C:\Users\user\Desktop\speechto-text-409222-178e315d8f2c.json <- 바탕화면에 있는 키 json파일 설정
+    def post(self, request):
+        content = request.data['user_answer'] # 줄거리 데이터
+        quiz = request.data['quiz'] # 퀴즈 데이터
+        user_answer = request.data['user_answer'] # 대답 데이터
+        quiz_answer = request.data['quiz_answer'] # 퀴즈 정답 데이터
+        
+        # ChatGPT API 사용하는 부분
+        with open ("key.json", "r") as f:
+            key = json.load(f)
+        client = OpenAI(api_key=key['gpt_key'])
 
-# 2. python manage.py shell 실행
-
-# 3.from google.cloud import speech    <- shell에 입력
-# import io
-
-# # Google Cloud Speech 클라이언트 초기화
-# client = speech.SpeechClient()
-
-# # 음성 파일 불러오기
-# file_path = 'C:\\Users\\user\\Desktop\\example.wav'
-# with io.open(file_path, 'rb') as audio_file:
-#     content = audio_file.read()
-
-# audio = speech.RecognitionAudio(content=content)
-# config = speech.RecognitionConfig(
-#     encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-#     language_code='ko-KR'
-# )
-
-# # STT 요청 및 응답
-# response = client.recognize(config=config, audio=audio)
-
-# # 결과 출력
-# for result in response.results:
-#     print('Transcript:', result.alternatives[0].transcript) <- 입력 후 Enter 두번 텍스트로 변환되는거 확인가능.
-    
-#     """
-    
-# Create your views here.
-# class BookViewSet(viewsets.ModelViewSet):
-#     queryset = BookList.objects.all()
-#     serializer_class = BookSerializer
+        response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+            "role": "system",
+            "content": """너는 아이들을 사랑하는 가정교사야. 
+                          아이들의 눈높이에 맞춰서 대답을 해줘야해. 
+                          아이들에게 맞춘 피드백을 해줘야 해.
+                          5, 6, 7세 아이에게 필요한 피드백이 필요해.
+                          간단하게 피드백을 해줘야해.
+                       """
+            },
+            {
+            "role": "user",
+            "content": "줄거리 : " + content + 
+                       " 퀴즈 : " + quiz +
+                       " 퀴즈 정답 : " + quiz_answer + 
+                       " 대답 : " + user_answer +
+                       " 다음과 같이 대답을 했을 때 피드백을 해줘"
+            },
+        ],
+        temperature=1,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+        )
+        # response_split = response.choices[0].message.content.split('정답: ')
+        # qustion = response_split[0].split('문제: ')[1]
+        # answer = response_split[1]
+        feedback = response.choices[0].message.content
+        return Response({"feedback": feedback, })
 
 class BookListView(ListCreateAPIView):
     queryset = BookList.objects.all()
@@ -115,16 +156,21 @@ class BookListDetailView(CreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]   
 
 class BookDetailView(ListCreateAPIView):
+    serializer_class = BookDetailSerializer
+    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         bookList = get_object_or_404(BookList, pk=self.kwargs['BookList_id'])
-        queryset = BookDetail.objects.filter(BookList=bookList.id)
-        return queryset
-    
-    serializer_class = BookDetailSerializer
+        return BookDetail.objects.filter(BookList=bookList.id)
+
+    def paginate_queryset(self, queryset):
+        # 'all' 쿼리 파라미터를 확인
+        if self.request.query_params.get('all') == 'true':
+            return None  # 페이지네이션 적용 안함
+        return super().paginate_queryset(queryset)  # 기본 페이지네이션 로직 수행
+
     pagination_class = BookDetailCustomPagination
-    authentication_classes = [BasicAuthentication, SessionAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class QuizListView(ListCreateAPIView):
     queryset = QuizList.objects.all()
@@ -271,6 +317,13 @@ class ReadingStatusview(APIView):
         readbook = len(read_list)
         return Response({'User' : pk, 'readbook' : read_list, 'readbooknum' : readbook})
     
+class ReadingStatusCreateView(ListCreateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = ReadingStatus.objects.all()
+    model = ReadingStatus
+    serializer_class = ReadingStatusCreateSerializer
+
 class CommentCreateView(CreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]

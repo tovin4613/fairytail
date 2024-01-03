@@ -34,11 +34,15 @@ urlpatterns = [
     path('posts/<int:pk>/comment/',commentuploadview.as_view()),
     path('posts/<int:pk>/', postRetrieveview.as_view()),
     path('comment/', CommentCreateView.as_view()),
-    # 아래는 'dasomi'가 추가
-    # path('chatgpt/', chatGPT),
+
+    path('ChatGPT/Question/', ChatGPT_Question.as_view()),
+    path('ChatGPT/Feedback/', ChatGPT_Feedback.as_view()),
+    path('TextToSpeech/', TextToSpeech.as_view()),
+    
     # path('transcribe/', transcribe_audio),
     
-    path('user/<int:pk>/learningstatus', LearningStatusview.as_view()),
-    path('user/<int:pk>/readingstatus', ReadingStatusview.as_view()),
-    path('posts/media/', PostMediaView.as_view())
+    path('user/<int:pk>/learningstatus/', LearningStatusview.as_view()),
+    path('user/<int:pk>/readingstatus/', ReadingStatusview.as_view()),
+    path('ReadingStatus/', ReadingStatusCreateView.as_view()),
+    path('posts/media/', PostMediaView.as_view()),
 ]
