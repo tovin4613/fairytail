@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 import requests
+from datetime import datetime
 #from openai import OpenAI
 #from google.cloud import speech
 import io
@@ -254,8 +255,23 @@ class LearningStatusview(APIView):
         serializer = LearningStatusSerializer(learning_statuses, many=True)
         wrong_list = [i for i in serializer.data if not i['is_right']]
         wrongpercentage = (len(wrong_list) / len(serializer.data)) * 100
-        numdata = len(serializer.data)
-        return Response({'User' : pk, 'wrongpercentage' : wrongpercentage, 'numdata' : numdata})
+        grouped_data={}
+        for i in serializer.data:
+            date_str=i['created_at']
+            created_at = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f')
+            month = created_at.month
+            if month in grouped_data:
+                grouped_data[month]+=1
+            else:
+                grouped_data[month]=1
+        groupdata=sorted(list(grouped_data.items()))
+        grouped_data=[]
+        month_data=[]
+        for x,y in groupdata:
+            grouped_data.append(str(x)+'월')
+            month_data.append(y)
+        numdata=len(serializer.data)
+        return Response({'User' : pk, 'wrongpercentage' : wrongpercentage, 'numdata' : numdata, 'grouped_data': grouped_data ,'month_data' : month_data})
     
 class ReadingStatusview(APIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
