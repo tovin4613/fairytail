@@ -28,7 +28,7 @@ import random
 from .api import *
 
 class PostCustomPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 7
     max_page_size = 100
 
 class BookDetailCustomPagination(PageNumberPagination):
