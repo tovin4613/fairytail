@@ -133,19 +133,19 @@ class BookDetailView(ListCreateAPIView):
 class QuizListView(ListCreateAPIView):
     queryset = QuizList.objects.all()
     serializer_class = QuizListSerializer
-    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class WordListView(ListCreateAPIView):
     queryset = WordList.objects.all()
     serializer_class = WordListSerializer
-    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class AiAudioListView(ListCreateAPIView):
     queryset = AiAudioList.objects.all()
     serializer_class = AiAudioListSerializer
-    authentication_classes = [BasicAuthentication, SessionAuthentication]
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class CreateUserView(ListCreateAPIView):
@@ -288,7 +288,7 @@ class ReadingStatusview(APIView):
         readbook = len(read_list)
         return Response({'User' : pk, 'readbook' : read_list, 'readbooknum' : readbook})
     
-class ReadingStatusCreateView(CreateAPIView):
+class ReadingStatusCreateView(ListCreateAPIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = ReadingStatus.objects.all()

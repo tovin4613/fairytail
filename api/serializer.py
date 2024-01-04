@@ -113,7 +113,7 @@ class ReadingStatusCreateSerializer(serializers.ModelSerializer):
     
 class LearningStatusCreateSerializer(serializers.ModelSerializer):
     # QuizList = serializers.SerializerMethodField()
-    is_right = 1
+    is_right = 1 # -> 현재는 모두 옳다고 넣지만 추후 옳다 틀리다의 기준이 명확해지면 변형 할 계획임
     class Meta:
         model = LearningStatus
         fields = ['id', 'User', 'created_at','QuizList','is_right']
