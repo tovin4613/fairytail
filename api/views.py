@@ -257,7 +257,7 @@ class LearningStatusview(APIView):
         learning_statuses = self.get_object(pk)
         serializer = LearningStatusSerializer(learning_statuses, many=True)
         wrong_list = [i for i in serializer.data if not i['is_right']]
-        wrongpercentage = (len(wrong_list) / len(serializer.data)) * 100
+        wrongpercentage = round((len(wrong_list) / len(serializer.data)) * 100, 2)
         grouped_data={}
         now=datetime.now() 
         month=[]
@@ -327,3 +327,13 @@ class PostMediaView(ListCreateAPIView):
             serializer.save(media_path=resized_image)
         else:
             serializer.save()
+
+class LearningStatusCreateView(ListCreateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = LearningStatus.objects.all()
+    model = LearningStatus
+    serializer_class = LearningStatusCreateSerializer
+    
+    
+        

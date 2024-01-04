@@ -99,16 +99,6 @@ class AiAudioList(models.Model):
     audio_path = models.FileField(upload_to='audio/')
     created_at = models.DateTimeField(auto_now_add=True)
     
-class LearningStatus(models.Model):
-    User = models.ForeignKey(User, related_name='LearningStatus', on_delete=models.CASCADE)
-    QuizList = models.OneToOneField(QuizList, related_name = 'LearningStatus', on_delete=models.CASCADE)
-    is_right = models.BooleanField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-class ReadingStatus(models.Model):
-    User = models.ForeignKey(User, related_name='ReadingStatus', on_delete=models.CASCADE)
-    BookList = models.ForeignKey(BookList, related_name='ReadingStatus', on_delete=models.CASCADE) #포린키로 변경
-    created_at = models.DateTimeField(auto_now_add=True)
     
 class LearningStatus(models.Model):
     User = models.ForeignKey(User, related_name='LearningStatus', on_delete=models.CASCADE)

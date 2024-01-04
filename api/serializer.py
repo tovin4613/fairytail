@@ -110,3 +110,20 @@ class ReadingStatusCreateSerializer(serializers.ModelSerializer):
         if ReadingStatus.objects.filter(User=User, BookList=BookList).exists():
             raise serializers.ValidationError("이미 해당 User와 BookList 조합이 존재합니다.")
         return data
+    
+class LearningStatusCreateSerializer(serializers.ModelSerializer):
+    # QuizList = serializers.SerializerMethodField()
+    is_right = 1
+    class Meta:
+        model = LearningStatus
+        fields = ['id', 'User', 'created_at','QuizList','is_right']
+
+    def get_QuizList(self, obj):
+        return obj.LearningStatus.QuizList
+    
+    # def validate(self, data):
+    #     User = data.get('User')
+    #     QuizList = data.get('QuizList')
+    #     if LearningStatus.objects.filter(User=User, QuizList=QuizList).exists():
+    #         raise serializers.ValidationError("이미 해당 User와 QuizList 조합이 존재합니다.")
+    #     return data

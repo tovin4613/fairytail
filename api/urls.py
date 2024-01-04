@@ -45,4 +45,5 @@ urlpatterns = [
     path('user/<int:pk>/readingstatus/', ReadingStatusview.as_view()),
     path('ReadingStatus/', ReadingStatusCreateView.as_view()),
     path('posts/media/', PostMediaView.as_view()),
+    path('LearningStatus/', LearningStatusCreateView.as_view())
 ]
