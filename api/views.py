@@ -327,3 +327,13 @@ class PostMediaView(ListCreateAPIView):
             serializer.save(media_path=resized_image)
         else:
             serializer.save()
+
+class LearningStatusCreateView(ListCreateAPIView):
+    authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = LearningStatus.objects.all()
+    model = LearningStatus
+    serializer_class = LearningStatusCreateSerializer
+    
+    
+        
