@@ -117,6 +117,9 @@ class LearningStatus(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
 class ReadingStatus(models.Model):
+    
     User = models.ForeignKey(User, related_name='ReadingStatus', on_delete=models.CASCADE)
     BookList = models.ForeignKey(BookList, related_name='ReadingStatus', on_delete=models.CASCADE) #포린키로 변경
     created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        unique_together =('User', 'BookList')
