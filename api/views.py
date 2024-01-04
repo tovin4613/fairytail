@@ -44,9 +44,9 @@ class TextToSpeech(APIView):
 
         # ChatGPT API 사용하는 부분
         
-        content = TTS(request.data['content'])
-
-        return Response({"content": content})
+        file_path = TTS(request.data['content'])
+        
+        return Response({"file_path": file_path})
 
 class ChatGPT_Question(APIView):
     authentication_classes = [BasicAuthentication, SessionAuthentication, JWTAuthentication]
