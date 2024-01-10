@@ -28,7 +28,7 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('recognize_speech/', RecognizeSpeechView.as_view()),
-    path('stable/', include('stable.urls')),
+    # path('stable/', include('stable.urls')),
     #아래는 'dasomi'가 추가
     # path('chatgpt/', chatGPT, name='chatgpt'),
     # path('transcribe/', 'transcribe_audio'),
