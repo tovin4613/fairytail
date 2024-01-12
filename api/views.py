@@ -16,7 +16,6 @@ from rest_framework.filters import OrderingFilter
 import requests
 from datetime import datetime, timedelta
 
-#from google.cloud import speech
 import io
 from PIL import Image
 from django.core.files.base import ContentFile
@@ -40,7 +39,7 @@ class TextToSpeech(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     
     def post(self, request):
-        # bookid = request.data['bookid']
+        
 
         # ChatGPT API 사용하는 부분
         
@@ -184,14 +183,6 @@ class postRetrieveview(APIView):
         serializer = PostSerializer(book)
         return Response(serializer.data)
 
-    # # 등록
-    # def post(self, request, pk, format=None):
-    #     book = self.get_object(pk)
-    #     serializer = BookSerializer(book, data=request.data) 
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data) 
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 수정
     def put(self, request, pk, format=None):
@@ -256,20 +247,20 @@ class LearningStatusview(APIView):
     def get(self, request, pk, format=None):
         learning_statuses = self.get_object(pk)
         serializer = LearningStatusSerializer(learning_statuses, many=True)
-        wrong_list = [i for i in serializer.data if not i['is_right']]
-        wrongpercentage = round((len(wrong_list) / len(serializer.data)) * 100, 2)
+        wrong_list = [i for i in serializer.data if not i['is_right']] #is_right가 false인 것들에 대해 틀린것 리스트로 받아옴
+        wrongpercentage = round((len(wrong_list) / len(serializer.data)) * 100, 2) #오답률을 나타냄
         grouped_data={}
-        now=datetime.now() 
+        now=datetime.now() #현재 시간(local)
         month=[]
-        month_data=[0,0,0,0,0,0,0]
+        month_data=[0,0,0,0,0,0,0] #일주일 내 각 요일마다 푼 퀴즈수 저장용
         for i in serializer.data:
             date_str=i['created_at']
             created_at = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f')
             thedate = created_at
-            if (now-timedelta(days=7))<thedate:
+            if (now-timedelta(days=7))<thedate: #일주일 내에 푼 퀴즈 들만 가져오기 위함
                 month.append(thedate)
         for i in range(len(month)):
-            month_data[month[i].weekday()]+=1
+            month_data[month[i].weekday()]+=1 #푼 퀴즈 수에 대해 카운트
         grouped_data=['월','화','수','목','금','토','일']
         numdata=len(serializer.data)
         return Response({'User' : pk, 'wrongpercentage' : wrongpercentage, 'numdata' : numdata, 'grouped_data': grouped_data ,'month_data' : month_data})

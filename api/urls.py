@@ -11,12 +11,10 @@ from django.contrib.auth.views import LoginView
 
 
 urlpatterns = [
-    #path('', include(router.urls)),
+    
     path('BookList/', BookListView.as_view()),
     path('BookList/<int:pk>/', BookListDetailView.as_view()),
-    # path('BookList2/', BookListView2.as_view()),
-    # path('BookList2/<int:pk>', BookListDetailView2.as_view()),
-    # path('BookList/<int:pk>/', BookListRetrieveView.as_view()),
+
     path('BookDetail/<int:BookList_id>/', BookDetailView.as_view()),
     path('QuizList/', QuizListView.as_view()),
     path('WordList/', WordListView.as_view()),
@@ -26,9 +24,7 @@ urlpatterns = [
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('user/<int:pk>/', GetUser.as_view(), name='login'),
     path('signup/', CreateUserView.as_view(), name='signup'),
-    # path('BookDetail/', BookDetailView.as_view()),
-    # path('BookDetail/<int:BookList_id>/', BookDetailRetrieveView.as_view()),
-    # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
     path('posts/', Postview.as_view()),
     path('posts/<int:pk>/', postRetrieveview.as_view()),
     path('posts/<int:pk>/comment/',commentuploadview.as_view()),
@@ -39,7 +35,6 @@ urlpatterns = [
     path('ChatGPT/Feedback/', ChatGPT_Feedback.as_view()),
     path('TextToSpeech/', TextToSpeech.as_view()),
     
-    # path('transcribe/', transcribe_audio),
     
     path('user/<int:pk>/learningstatus/', LearningStatusview.as_view()),
     path('user/<int:pk>/readingstatus/', ReadingStatusview.as_view()),
